@@ -1,24 +1,31 @@
+require_relative '00_tree_node'
+require 'byebug'
+
 class KnightPathFinder
 
   RELATIVE_MOVES = [
-    [-2,-1],
-    [-2,1],
-    [2,-1],
-    [2,1],
-    [1,-2],
-    [1,2],
-    [-1,-2],
-    [-1,2]
+    [-2, -1],
+    [-2, 1],
+    [2, -1],
+    [2, 1],
+    [1, -2],
+    [1, 2],
+    [-1, -2],
+    [-1, 2]
   ]
+
+  attr_reader :visited_positions
 
   def initialize(start_pos)
     @start_pos = start_pos
     @visited_positions = [start_pos]
-
   end
 
   def new_move_positions(pos)
-    KnightPathFinder.valid_moves(pos)
+    possible_moves = KnightPathFinder.valid_moves(pos)
+    possible_moves -= @visited_positions
+    @visited_positions.concat(possible_moves)
+    possible_moves
   end
 
   def self.valid_moves(pos)
@@ -26,27 +33,17 @@ class KnightPathFinder
     RELATIVE_MOVES.each do |rel_pos|
       possible << [pos[0] + rel_pos[0], pos[1] + rel_pos[1]]
     end
-    possible - @visited_positions
+
     possible.select! do |position|
       (0..7).cover?(position.first) && (0..7).cover?(position.last)
     end
 
-    @visited_positions.concat(possible)
-    return possible
+    possible
   end
 
-  # def is_node(maybe)
-  #   if maybe.is_a?(PolyTreeNode)
-  #     return maybe
-  #   else
-  #     return PolyTreeNode.new(maybe)
-  #   end
-  # end
-
-
   def build_move_tree
-    root_node = PolyTreeNode.new(@start_pos)
-    node_queue = [root_node]
+    @root = PolyTreeNode.new(@start_pos)
+    node_queue = [@root]
 
     until node_queue.empty?
       current_node = node_queue.shift
@@ -59,20 +56,28 @@ class KnightPathFinder
         node_queue << child_node
       end
     end
-  end
 
-  # def bfs(target_value)
-  #   queue = [self]
+  end
+  # def dfs(target_value)
+  #   return self if value == target_value
   #
-  #   until queue.empty?
-  #     current_node = queue.shift
-  #     return current_node if current_node.value == target_value
-  #     queue.concat(current_node.children)
+  #   children.each do |child|
+  #     result = child.dfs(target_value)
+  #     return result if result
   #   end
   #   nil
   # end
 
-  def find_path
+  def find_path(end_pos)
+    trace_path_back(@root.dfs(end_pos))
+
+  end
+
+  def trace_path_back(node)
+
+    return [node.value] if node.parent == nil
+
+    trace_path_back(node.parent) + [node.value]
 
   end
 
