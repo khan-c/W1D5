@@ -10,6 +10,9 @@ class TicTacToeNode
   end
 
   def losing_node?(evaluator)
+    # TODO figure out what to set this to. this method is likely called
+    # on a child node of this node to check if that node would be a losing node.
+    # if @board.over? && @board.winner !=
   end
 
   def winning_node?(evaluator)
